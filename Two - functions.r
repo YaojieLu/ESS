@@ -1,37 +1,29 @@
 
 # daily rainfall (AD) function
-fAD <- function(n, averR = totrain/k, nZ = 0.5, gamma = 1/(averR/1000)*nZ, rseed = 1){
+fAD <- function(n, MDP=MAP/365, nZ=0.5, gamma=1/(MDP/k/1000)*nZ, rseed=1){
   
   set.seed(rseed)
   # DR[i] - the day when the ith rainfall event occurs
   DR <- floor(cumsum(rexp(n, k)))
-  # LS - the length of simulation run
-  LS <- tail(DR, n = 1)
   #AR[i] <- the amount of ith rainfall event
   AR <- rexp(n, gamma)
   #AD[i] - the amount of total rainfall on the ith day
-  AD <- rep(0, length = LS)
-  for (i in 1:n){
-    AD[DR[i]] <- AD[DR[i]]+AR[i]
-  }
+  AD <- rep(0, length=tail(DR, n=1))
+  for (i in 1:n){AD[DR[i]] <- AD[DR[i]]+AR[i]}
   return(AD)
-  
 }
 
 # growth with shared water resource 
 make_f <- function(AD, LS,
                    par1, par2,
-                   RW0 = 0.5, 
-                   Vcmax = 50, Km = 703, cp = 30, Rd = 1,
-                   VPD = 0.02,
-                   p = 43200, LAI = 1, nZ = 0.5, a = 1.6, l = 1.8e-5, h = l*a*LAI/nZ*p){
+                   Vcmax=50, Km=703, cp=30, Rd=1,VPD=0.02,p=43200,
+                   LAI=1, nZ=0.5, a=1.6, l=1.8e-5, h=l*a*LAI/nZ*p){
   
   # to be safe
   AD <- as.numeric(AD)
   LS <- as.integer(LS)
   par1 <- as.numeric(par1)
   par2 <- as.numeric(par2)
-  RW0 <- as.numeric(RW0)
   Vcmax <- as.numeric(Vcmax)
   Km <- as.numeric(Km)
   cp <- as.numeric(cp)
@@ -49,44 +41,44 @@ make_f <- function(AD, LS,
   parb2 <- as.numeric(par2[2])
   
   #g[i] - average stomatal conductance on the ith day
-  g1 <- vector("numeric", length = LS)
+  g1 <- vector("numeric", length=LS)
   g1[1] <- as.numeric(0)
-  g2 <- vector("numeric", length = LS)
+  g2 <- vector("numeric", length=LS)
   g2[1] <- as.numeric(0)
   # A[i] - photosynthate production on the ith day; Î¼mol per leaf area per second
-  A1 <- vector("numeric", length = LS)
+  A1 <- vector("numeric", length=LS)
   A1[1] <- as.numeric(0)
-  A2 <- vector("numeric", length = LS)
+  A2 <- vector("numeric", length=LS)
   A2[1] <- as.numeric(0)
   # E[i] - the amount of soil water transpired on ith day; per day
-  E1 <- vector("numeric", length = LS)
+  E1 <- vector("numeric", length=LS)
   E1[1] <- as.numeric(0)
-  E2 <- vector("numeric", length = LS)
+  E2 <- vector("numeric", length=LS)
   E2[1] <- as.numeric(0)
   # RW[i] - relative soil water content on ith day
-  RW <- vector("numeric", length = LS)
-  RW[1] <- as.numeric(RW0[1])
+  RW <- vector("numeric", length=LS)
+  RW[1] <- 0.5
   
   code <- "
   integer i
   
-  do i = 2, LS(1)
+  do i=2, LS(1)
   
-  g1(i) = para1(1)*RW(i-1)**parb1(1)
-  A1(i) = 0.5*(Vcmax(1)+(Km(1)+ca(1))*g1(i)-Rd(1)-(Vcmax(1)**2.+  &
+  g1(i)=para1(1)*RW(i-1)**parb1(1)
+  A1(i)=0.5*(Vcmax(1)+(Km(1)+ca(1))*g1(i)-Rd(1)-(Vcmax(1)**2.+  &
   2.*Vcmax(1)*(Km(1)-ca(1)+2.*cp(1))*g1(i)+((ca(1)+Km(1))*g1(i)+  &
-  Rd(1))**2.-2.*Rd(1)*Vcmax(1))**0.5)-5000.*(1.-RW(i-1))/(exp(1000.*(RW(i-1)-0.05))+1.)
-  E1(i) = h(1)*VPD(1)*g1(i)
+  Rd(1))**2.-2.*Rd(1)*Vcmax(1))**0.5)-hk(1)*g1(i)
+  E1(i)=h(1)*VPD(1)*g1(i)
   
-  g2(i) = para2(1)*RW(i-1)**parb2(1)
-  A2(i) = 0.5*(Vcmax(1)+(Km(1)+ca(1))*g2(i)-Rd(1)-(Vcmax(1)**2.+  &
+  g2(i)=para2(1)*RW(i-1)**parb2(1)
+  A2(i)=0.5*(Vcmax(1)+(Km(1)+ca(1))*g2(i)-Rd(1)-(Vcmax(1)**2.+  &
   2.*Vcmax(1)*(Km(1)-ca(1)+2.*cp(1))*g2(i)+((ca(1)+Km(1))*g2(i)+  &
-  Rd(1))**2.-2.*Rd(1)*Vcmax(1))**0.5)-5000.*(1.-RW(i-1))/(exp(1000.*(RW(i-1)-0.05))+1.)
-  E2(i) = h(1)*VPD(1)*g2(i)
+  Rd(1))**2.-2.*Rd(1)*Vcmax(1))**0.5)-hk(1)*g2(i)
+  E2(i)=h(1)*VPD(1)*g2(i)
   
-  RW(i) = RW(i-1)+AD(i)-0.95*E1(i)-0.05*E2(i)
-  if(RW(i).gt.1.0)RW(i) = 1.0
-  if(RW(i).lt.0.0)RW(i) = 0.0
+  RW(i)=RW(i-1)+AD(i)-E1(i)
+  if(RW(i).gt.1.0)RW(i)=1.0
+  if(RW(i).lt.0.0)RW(i)=0.0
   
   enddo
   "
@@ -96,6 +88,7 @@ make_f <- function(AD, LS,
                                   parb1="numeric",
                                   para2="numeric",
                                   parb2="numeric",
+                                  hk="numeric",
                                   ca="numeric",
                                   Vcmax ="numeric",
                                   Km="numeric",
@@ -115,23 +108,15 @@ make_f <- function(AD, LS,
 }
 
 run_f <- function(mod,
-                  mult = 1e10,
                   AD, LS,
                   par1, par2,
-                  RW0 = 0.5, 
-                  Vcmax = 50, Km = 703, cp = 30, Rd = 1,
-                  VPD = 0.02,
-                  p = 43200, LAI = 1, nZ = 0.5, a = 1.6, l = 1.8e-5, h = l*a*LAI/nZ*p #, returnwhat=c("check", "all")
-){
-  
-  #returnwhat <- match.arg(returnwhat)
-  #t0 <- proc.time()[3]
+                  Vcmax=50, Km=703, cp=30, Rd=1,VPD=0.02,p=43200,
+                  LAI=1,nZ=0.5, a=1.6, l=1.8e-5, h=l*a*LAI/nZ*p){
   
   AD <- as.numeric(AD)
   LS <- as.integer(LS)
   par1 <- as.numeric(par1)
   par2 <- as.numeric(par2)
-  RW0 <- as.numeric(RW0)
   Vcmax <- as.numeric(Vcmax)
   Km <- as.numeric(Km)
   cp <- as.numeric(cp)
@@ -149,54 +134,41 @@ run_f <- function(mod,
   parb2 <- as.numeric(par2[2])
   
   #g[i] - average stomatal conductance on the ith day
-  g1 <- vector("numeric", length = LS)
+  g1 <- vector("numeric", length=LS)
   g1[1] <- as.numeric(0)
-  g2 <- vector("numeric", length = LS)
+  g2 <- vector("numeric", length=LS)
   g2[1] <- as.numeric(0)
   # A[i] - photosynthate production on the ith day; Î¼mol per leaf area per second
-  A1 <- vector("numeric", length = LS)
+  A1 <- vector("numeric", length=LS)
   A1[1] <- as.numeric(0)
-  A2 <- vector("numeric", length = LS)
+  A2 <- vector("numeric", length=LS)
   A2[1] <- as.numeric(0)
   # E[i] - the amount of soil water transpired on ith day; per day
-  E1 <- vector("numeric", length = LS)
+  E1 <- vector("numeric", length=LS)
   E1[1] <- as.numeric(0)
-  E2 <- vector("numeric", length = LS)
+  E2 <- vector("numeric", length=LS)
   E2[1] <- as.numeric(0)
   # RW[i] - relative soil water content on ith day
-  RW <- vector("numeric", length = LS)
-  RW[1] <- as.numeric(RW0)
+  RW <- vector("numeric", length=LS)
+  RW[1] <- 0.5
   
-  z <- mod(AD, LS, para1, parb1, para2, parb2, ca, Vcmax, Km, cp, Rd, VPD, h, RW, g1, A1, E1, g2, A2, E2)
-  
-  # avernetA1 <- mean(z$A1) - mean(z$E1)*0 #Cost
-  # avernetA2 <- mean(z$A2) - mean(z$E2)*0 #Cost
+  z <- mod(AD, LS, para1, parb1, para2, parb2, hk, ca, Vcmax, Km, cp, Rd, VPD, h, RW, g1, A1, E1, g2, A2, E2)
   avernetA2 <- mean(z$A2)
-  
-  res <- -avernetA2
-  
-  return(res)
+  return(-avernetA2)
 }
 
-run_f_wrapper <- function(par, ...){
-  
-  run_f(par2=par, ...)
-  
-}
+run_f_wrapper <- function(par, ...){run_f(par2=par, ...)}
 
 # growth in monoculture 
 make_fmono <- function(AD, LS,
                        par,
-                       RW0 = 0.5, 
-                       Vcmax = 50, Km = 703, cp = 30, Rd = 1,
-                       VPD = 0.02,
-                       p = 43200, LAI = 1, nZ = 0.5, a = 1.6, l = 1.8e-5, h = l*a*LAI/nZ*p){
+                       Vcmax=50, Km=703, cp=30, Rd=1,VPD=0.02,p=43200,
+                       LAI=1, nZ=0.5, a=1.6, l=1.8e-5, h=l*a*LAI/nZ*p){
   
   # to be safe
   AD <- as.numeric(AD)
   LS <- as.integer(LS)
   par <- as.numeric(par)
-  RW0 <- as.numeric(RW0)
   Vcmax <- as.numeric(Vcmax)
   Km <- as.numeric(Km)
   cp <- as.numeric(cp)
@@ -212,32 +184,32 @@ make_fmono <- function(AD, LS,
   parb <- as.numeric(par[2])
   
   #g[i] - average stomatal conductance on the ith day
-  g <- vector("numeric", length = LS)
+  g <- vector("numeric", length=LS)
   g[1] <- as.numeric(0)
   # A[i] - photosynthate production on the ith day; Î¼mol per leaf area per second
-  A <- vector("numeric", length = LS)
+  A <- vector("numeric", length=LS)
   A[1] <- as.numeric(0)
   # E[i] - the amount of soil water transpired on ith day; per day
-  E <- vector("numeric", length = LS)
+  E <- vector("numeric", length=LS)
   E[1] <- as.numeric(0)
   # RW[i] - relative soil water content on ith day
-  RW <- vector("numeric", length = LS)
-  RW[1] <- as.numeric(RW0[1])
+  RW <- vector("numeric", length=LS)
+  RW[1] <- 0.5
   
   code <- "
   integer i
   
-  do i = 2, LS(1)
+  do i=2, LS(1)
   
-  g(i) = para(1)*RW(i-1)**parb(1)
-  A(i) = 0.5*(Vcmax(1)+(Km(1)+ca(1))*g(i)-Rd(1)-(Vcmax(1)**2.+  &
+  g(i)=para(1)*RW(i-1)**parb(1)
+  A(i)=0.5*(Vcmax(1)+(Km(1)+ca(1))*g(i)-Rd(1)-(Vcmax(1)**2.+  &
   2.*Vcmax(1)*(Km(1)-ca(1)+2.*cp(1))*g(i)+((ca(1)+Km(1))*g(i)+  &
-  Rd(1))**2.-2.*Rd(1)*Vcmax(1))**0.5)-5000.*(1.-RW(i-1))/(exp(1000.*(RW(i-1)-0.05))+1.)
-  E(i) = h(1)*VPD(1)*g(i)
+  Rd(1))**2.-2.*Rd(1)*Vcmax(1))**0.5)-hk(1)*g(i)
+  E(i)=h(1)*VPD(1)*g(i)
   
-  RW(i) = RW(i-1)+AD(i)-E(i)
-  if(RW(i).gt.1.0)RW(i) = 1.0
-  if(RW(i).lt.0.0)RW(i) = 0.0
+  RW(i)=RW(i-1)+AD(i)-E(i)
+  if(RW(i).gt.1.0)RW(i)=1.0
+  if(RW(i).lt.0.0)RW(i)=0.0
   
   enddo
   "
@@ -245,6 +217,7 @@ make_fmono <- function(AD, LS,
                                   LS="integer", 
                                   para="numeric",
                                   parb="numeric",
+                                  hk="numeric",
                                   ca="numeric",
                                   Vcmax="numeric",
                                   Km="numeric",
@@ -263,19 +236,12 @@ make_fmono <- function(AD, LS,
 run_fmono <- function(mod,
                       AD, LS,
                       par,
-                      RW0 = 0.5, 
-                      Vcmax = 50, Km = 703, cp = 30, Rd = 1,
-                      VPD = 0.02,
-                      p = 43200, LAI = 1, nZ = 0.5, a = 1.6, l = 1.8e-5, h = l*a*LAI/nZ*p #, returnwhat=c("check", "all")
-){
-  
-  #returnwhat <- match.arg(returnwhat)
-  #t0 <- proc.time()[3]
+                      Vcmax=50, Km=703, cp=30, Rd=1,VPD=0.02,p=43200,
+                      LAI=1, nZ=0.5, a=1.6, l=1.8e-5, h=l*a*LAI/nZ*p){
   
   AD <- as.numeric(AD)
   LS <- as.integer(LS)
   par <- as.numeric(par)
-  RW0 <- as.numeric(RW0)
   Vcmax <- as.numeric(Vcmax)
   Km <- as.numeric(Km)
   cp <- as.numeric(cp)
@@ -291,39 +257,30 @@ run_fmono <- function(mod,
   parb <- as.numeric(par[2])
   
   #g[i] - average stomatal conductance on the ith day
-  g <- vector("numeric", length = LS)
+  g <- vector("numeric", length=LS)
   g[1] <- as.numeric(0)
   # A[i] - photosynthate production on the ith day; Î¼mol per leaf area per second
-  A <- vector("numeric", length = LS)
+  A <- vector("numeric", length=LS)
   A[1] <- as.numeric(0)
   # E[i] - the amount of soil water transpired on ith day; per day
-  E <- vector("numeric", length = LS)
+  E <- vector("numeric", length=LS)
   E[1] <- as.numeric(0)
   # RW[i] - relative soil water content on ith day
-  RW <- vector("numeric", length = LS)
-  RW[1] <- as.numeric(RW0)
+  RW <- vector("numeric", length=LS)
+  RW[1] <- 0.5
   
-  z <- mod(AD, LS, para, parb, ca, Vcmax, Km, cp, Rd, VPD, h, RW, g, A, E)
-  
-  # f <- function(x)1/(exp(a*(x+b))+1)
-  # avernetA <- mean(z$A) - mean(z$E)*0 #Cost
+  z <- mod(AD, LS, para, parb, hk, ca, Vcmax, Km, cp, Rd, VPD, h, RW, g, A, E)
   avernetA <- mean(z$A)
-  
   return(avernetA)
 }
 
 obj <- function(par1, par2, modmono, modmult, mult, Amin, ...){
   
-  avernetA1 <- run_fmono(par = par1, mod = modmono, ...)
-  avernetA2 <- run_fmono(par = par2, mod = modmono, ...)
-  advantage <- run_f(par1 = par1, par2 = par2, mod = modmult, ...)
+  avernetA1 <- run_fmono(par=par1, mod=modmono, ...)
+  avernetA2 <- run_fmono(par=par2, mod=modmono, ...)
+  advantage <- run_f(par1=par1, par2=par2, mod=modmult, ...)
   res <- advantage+100*((1-1/(exp(mult*(Amin-avernetA1))+1))+(1-1/(exp(mult*(Amin-avernetA2))+1)))
   return(res)
-  
 }
 
-obj_wrapper <- function(par, ...){
-  
-  obj(par2=par, ...)
-  
-}
+obj_wrapper <- function(par, ...){obj(par2=par, ...)}
