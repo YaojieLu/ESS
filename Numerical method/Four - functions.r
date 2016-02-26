@@ -35,10 +35,6 @@ make_f <- function(AD, LS,
   a <- as.numeric(a)
   l <- as.numeric(l)
   h <- as.numeric(h)
-  para1 <- as.numeric(par1[1])
-  parb1 <- as.numeric(par1[2])
-  para2 <- as.numeric(par2[1])
-  parb2 <- as.numeric(par2[2])
   
   #g[i] - average stomatal conductance on the ith day
   g1 <- vector("numeric", length=LS)
@@ -64,13 +60,13 @@ make_f <- function(AD, LS,
   
   do i=2, LS(1)
   
-  g1(i)=para1(1)*RW(i-1)**parb1(1)
+  g1(i)=par1(1)*RW(i-1)**par1(2)+par1(3)*RW(i-1)**par1(4)
   A1(i)=0.5*(Vcmax(1)+(Km(1)+ca(1))*g1(i)-Rd(1)-(Vcmax(1)**2.+  &
   2.*Vcmax(1)*(Km(1)-ca(1)+2.*cp(1))*g1(i)+((ca(1)+Km(1))*g1(i)+  &
   Rd(1))**2.-2.*Rd(1)*Vcmax(1))**0.5)-hk(1)*g1(i)
   E1(i)=h(1)*VPD(1)*g1(i)
   
-  g2(i)=para2(1)*RW(i-1)**parb2(1)
+  g2(i)=par2(1)*RW(i-1)**par2(2)+par2(3)*RW(i-1)**par2(4)
   A2(i)=0.5*(Vcmax(1)+(Km(1)+ca(1))*g2(i)-Rd(1)-(Vcmax(1)**2.+  &
   2.*Vcmax(1)*(Km(1)-ca(1)+2.*cp(1))*g2(i)+((ca(1)+Km(1))*g2(i)+  &
   Rd(1))**2.-2.*Rd(1)*Vcmax(1))**0.5)-hk(1)*g2(i)
@@ -84,10 +80,8 @@ make_f <- function(AD, LS,
   "
   daymodel <- cfunction(signature(AD="numeric",
                                   LS="integer", 
-                                  para1="numeric",
-                                  parb1="numeric",
-                                  para2="numeric",
-                                  parb2="numeric",
+                                  par1="numeric",
+                                  par2="numeric",
                                   hk="numeric",
                                   ca="numeric",
                                   Vcmax ="numeric",
@@ -128,10 +122,6 @@ run_f <- function(mod,
   a <- as.numeric(a)
   l <- as.numeric(l)
   h <- as.numeric(h)
-  para1 <- as.numeric(par1[1])
-  parb1 <- as.numeric(par1[2])
-  para2 <- as.numeric(par2[1])
-  parb2 <- as.numeric(par2[2])
   
   #g[i] - average stomatal conductance on the ith day
   g1 <- vector("numeric", length=LS)
@@ -152,7 +142,7 @@ run_f <- function(mod,
   RW <- vector("numeric", length=LS)
   RW[1] <- 0.5
   
-  z <- mod(AD, LS, para1, parb1, para2, parb2, hk, ca, Vcmax, Km, cp, Rd, VPD, h, RW, g1, A1, E1, g2, A2, E2)
+  z <- mod(AD, LS, par1, par2, hk, ca, Vcmax, Km, cp, Rd, VPD, h, RW, g1, A1, E1, g2, A2, E2)
   avernetA2 <- mean(z$A2)
   return(-avernetA2)
 }
@@ -180,8 +170,6 @@ make_fmono <- function(AD, LS,
   a <- as.numeric(a)
   l <- as.numeric(l)
   h <- as.numeric(h)
-  para <- as.numeric(par[1])
-  parb <- as.numeric(par[2])
   
   #g[i] - average stomatal conductance on the ith day
   g <- vector("numeric", length=LS)
@@ -201,7 +189,7 @@ make_fmono <- function(AD, LS,
   
   do i=2, LS(1)
   
-  g(i)=para(1)*RW(i-1)**parb(1)
+  g(i)=par(1)*RW(i-1)**par(2)+par(3)*RW(i-1)**par(4)
   A(i)=0.5*(Vcmax(1)+(Km(1)+ca(1))*g(i)-Rd(1)-(Vcmax(1)**2.+  &
   2.*Vcmax(1)*(Km(1)-ca(1)+2.*cp(1))*g(i)+((ca(1)+Km(1))*g(i)+  &
   Rd(1))**2.-2.*Rd(1)*Vcmax(1))**0.5)-hk(1)*g(i)
@@ -215,8 +203,7 @@ make_fmono <- function(AD, LS,
   "
   daymodel <- cfunction(signature(AD="numeric",
                                   LS="integer", 
-                                  para="numeric",
-                                  parb="numeric",
+                                  par="numeric",
                                   hk="numeric",
                                   ca="numeric",
                                   Vcmax="numeric",
@@ -253,8 +240,6 @@ run_fmono <- function(mod,
   a <- as.numeric(a)
   l <- as.numeric(l)
   h <- as.numeric(h)
-  para <- as.numeric(par[1])
-  parb <- as.numeric(par[2])
   
   #g[i] - average stomatal conductance on the ith day
   g <- vector("numeric", length=LS)
@@ -269,7 +254,7 @@ run_fmono <- function(mod,
   RW <- vector("numeric", length=LS)
   RW[1] <- 0.5
   
-  z <- mod(AD, LS, para, parb, hk, ca, Vcmax, Km, cp, Rd, VPD, h, RW, g, A, E)
+  z <- mod(AD, LS, par, hk, ca, Vcmax, Km, cp, Rd, VPD, h, RW, g, A, E)
   avernetA <- mean(z$A)
   return(avernetA)
 }
@@ -279,7 +264,7 @@ obj <- function(par1, par2, modmono, modmult, mult, Amin, ...){
   avernetA1 <- run_fmono(par=par1, mod=modmono, ...)
   avernetA2 <- run_fmono(par=par2, mod=modmono, ...)
   advantage <- run_f(par1=par1, par2=par2, mod=modmult, ...)
-  res <- advantage+100*((1-1/(exp(mult*(Amin-avernetA1))+1))+(1-1/(exp(mult*(Amin-avernetA2))+1)))
+  res <- advantage+100*((1-1/(10^(mult*(Amin-avernetA1))+1))+(1-1/(exp(mult*(Amin-avernetA2))+1)))
   return(res)
 }
 
