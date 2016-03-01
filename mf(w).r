@@ -3,7 +3,7 @@
 w0f <- function(w0, gs=0,
                 ca=400, Vcmax=50, cp=30, Km=703, Rd=1,
                 a=1.6, nZ=0.5, p=43200, l=1.8e-5, LAI=1, h=l*a*LAI/nZ*p, VPD=0.02,
-                pe=-1.58, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05, h3=10){
+                pe=-1.58*10^-3, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05, h3=10){
   res <- ((-c)*h*h2*h3*(ca+Km)*kmax*LAI*pe*(ca*(Rd-Vcmax)+2*cp*Vcmax+Km*(Rd+Vcmax))*VPD*w0^b*(-(pe/(w0^b*d)))^c-c^2*h^2*h3^2*(ca*(Rd-Vcmax)+2*cp*Vcmax+Km*(Rd+Vcmax))*VPD^2*w0^(2*b)*(-(pe/(w0^b*d)))^(2*c)-sqrt(c*h*h3*(cp+Km)*Vcmax*(Km*Rd+ca*(Rd-Vcmax)+cp*Vcmax)*VPD*w0^b*(-(pe/(w0^b*d)))^c*(h2*(ca+Km)*kmax*LAI*pe+c*h*h3*VPD*w0^b*(-(pe/(w0^b*d)))^c)*(h2*(ca+Km)*kmax*LAI*pe+2*c*h*h3*VPD*w0^b*(-(pe/(w0^b*d)))^c)^2))/(w0^b*(-(pe/(w0^b*d)))^c)/(c*h*h3*(ca+Km)^2*VPD*(h2*(ca+Km)*kmax*LAI*pe+c*h*h3*VPD*w0^b*(-(pe/(w0^b*d)))^c))
   return(abs(res))
 }
@@ -12,7 +12,7 @@ w0 <- optimize(w0f, c(0.55, 0.9), tol=.Machine$double.eps)$minimum
 
 mf1 <- function(gs,
                 a=1.6, LAI=1, nZ=0.5, p=43200, l=1.8e-5, h=l*a*LAI/nZ*p, VPD=0.02,
-                pe=-1.58, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05, h3=10){
+                pe=-1.58*10^-3, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05, h3=10){
   
   ps <- pe*(w0+(1-w0)*w)^(-b)
   kf <- function(x)kmax*exp(-(-x/d)^c)
@@ -30,13 +30,12 @@ mf2 <- Vectorize(mf1)
 
 gsmax1 <- function(w,
                    a=1.6, nZ=0.5, p=43200, l=1.8e-5, LAI=1, h=l*a*LAI/nZ*p, VPD=0.02,
-                   pe=-1.58, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05){
+                   pe=-1.58*10^-3, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05){
   ps <- pe*(w0+(1-w0)*w)^(-b)
   kf <- function(x)kmax*exp(-(-x/d)^c)
   f1 <- function(x)-((ps-x)*h2*kf(x))
   pxmin <- optimize(f1, c(-20,0), tol = .Machine$double.eps)$minimum
-  f2 <- function(gs)((ps-pxmin)*h2*kf(pxmin)-h*VPD*gs)^2
-  gsmax <- optimize(f2, c(0, 2), tol = .Machine$double.eps)$minimum
+  gsmax <- (ps-pxmin)*h2*kf(pxmin)/(h*VPD)
   return(gsmax)
 }
 gsmax2 <- Vectorize(gsmax1)

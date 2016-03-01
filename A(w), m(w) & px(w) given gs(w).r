@@ -9,7 +9,7 @@ Af <- function(w,
   
 mf1 <- function(w,
                 a=1.6, LAI=1, nZ=0.5, p=43200, l=1.8e-5, h=l*a*LAI/nZ*p, VPD=0.02,
-                pe=-1.58, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05, h3=10){
+                pe=-1.58*10^-3, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05, h3=10){
 
   ps <- pe*(w0+(1-w0)*w)^(-b)
   kf <- function(x)kmax*exp(-(-x/d)^c)
@@ -29,7 +29,7 @@ Bf2 <- Vectorize(function(w)Bf1((w-w0)/(1-w0)))
 
 pxf1 <- function(w,
                  a=1.6, LAI=1, nZ=0.5, p=43200, l=1.8e-5, h=l*a*LAI/nZ*p, VPD=0.02,
-                 pe=-1.58, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05, h3=10){
+                 pe=-1.58*10^-3, b=4.38, h2=h/1000, kmax=5, c=5.71, d=10.05, h3=10){
   
   ps <- pe*w^(-b)
   kf <- function(x)kmax*exp(-(-x/d)^c)
