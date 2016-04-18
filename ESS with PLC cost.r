@@ -1,3 +1,4 @@
+
 #options(digits=20)
 w0f <- function(w0, gs=0,
                 ca=400, Vcmax=50, cp=30, Km=703, Rd=1,
@@ -55,11 +56,11 @@ par(mgp = c(2.2, 1, 0), xaxs = "i", yaxs = "i", lwd = 2, mar=c(4, 4, 2.5, 1), mf
 curve(ESS3, 0, 1,
       main= "ESS stomatal behaviour",
       xlab=expression(italic(w)), 
-      ylab=expression(italic(g[s])~(mol~m^-2~s^-1)),
+      ylab=expression(italic(g[sESS])~(mol~m^-2~s^-1)),
       xlim=c(0, 1), ylim=c(0, 1.2),
       cex.lab=1.3)
 abline(v=w0, col="blue")
-text(x=0.06, y=0.5, labels=expression(italic(w==w[0])), col="blue", cex=1.3)
+text(x=0.2, y=1.1, labels=expression(italic(w==w["0ESS"])), col="blue", cex=1.3)
 # Figure
 #windows(8, 6)
 #par(mgp = c(2.2, 1, 0), xaxs = "i", yaxs = "i", lwd = 2, mar=c(4, 4, 2.5, 1), mfrow=c(1,1))

@@ -46,14 +46,15 @@ pxf2 <- Vectorize(pxf1)
 windows(8, 6)
 par(mgp = c(2.2, 1, 0), xaxs = "i", yaxs = "i", lwd = 2, mar=c(4, 4, 2.5, 1), mfrow=c(1,1))
 curve(Bf2, w0, 1,
-      main= expression(italic(B(w,g[sESS](w)))),
+      main= expression(italic(B[ESS](w))),
       xlab=expression(italic(w)), 
-      ylab=expression(italic(B)~(mu*mol~m^-2~s^-1)),
-      xlim=c(0, 1), ylim=c(-12, 16),
+      ylab=expression(italic(B[ESS])~(mu*mol~m^-2~s^-1)),
+      xlim=c(0, 1), ylim=c(-20, 20),
       cex.lab=1.3)
 abline(h=0, col="red")
 abline(v=w0, col="blue")
-text(x=0.51, y=2, labels=expression(italic(w==w[0])), col="blue", cex=1.3)
+text(x=0.2, y=17, labels=expression(italic(w==w["0ESS"])), col="blue", cex=1.3)
+text(x=0.51 , y=2, labels=expression(italic(B==0)), col="red", cex=1.3)
 #curve(Af, 0, 1)
 #curve(mf2, 0, 1, col="red", add=T)
 #curve(Bf, 0, 1, col="blue", add=T)
