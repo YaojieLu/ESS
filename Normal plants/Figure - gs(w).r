@@ -2,9 +2,9 @@
 source("Normal plants/Functions.r")
 
 # Initializing
-ca1 <- 400
-ESSf1 <- Vectorize(function(w)ESSf(w, ca1))
-ESSBf1 <- Vectorize(function(w)ESSBf(w, ca1))
+ca <- 400
+ESSf1 <- Vectorize(function(w)ESSf(w, ca))
+ESSBf1 <- Vectorize(function(w)ESSBf(w, ca))
 
 wL <- uniroot(ESSBf1, c(0.12, 1), tol=.Machine$double.eps)$root
 

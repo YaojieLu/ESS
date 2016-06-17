@@ -16,11 +16,12 @@ MAPE <- data.frame(MAP=MAP, E=E)
 nls1 <- nls(E ~ MAP*((1+w*E0/MAP)/(1+w*E0/MAP+MAP/E0)), start=list(w=3.822, E0=1128.347), data=MAPE)
 p <- predict_nls(nls1, from=min(MAP), to=max(MAP), interval="confidence")
 
-# average E
-windows(8, 6)
-par(mgp=c(2.2, 1, 0), xaxs="i", yaxs="i", lwd=2, mar=c(3.5, 3.5, 1, 1.5), mfrow=c(1,1))
-Cols <- c("black", "red", "blue")
+# Figures
+windows(8, 12)
+par(mgp=c(2.2, 1, 0), xaxs="i", yaxs="i", lwd=2, oma=c(2.5, 0, 0, 0), mar=c(1, 3.5, 1, 1), mfrow=c(2, 1))
+Cols <- c("red", "darkgreen", "blue")
 
+# average E
 plot(MAP, E/365, panel.first={
   addpoly(p$x, p$lwr/365, p$upr/365)
   lines(p$x, p$pred/365)
@@ -32,19 +33,15 @@ xlab=NA, ylab=NA, xaxt="n", yaxt="n")
 plotBy(data$averE*500 ~ data$MAP | k, data=data,
        type='l', legend=FALSE, legendwhere="topleft",
        xlim=c(0, 3000), ylim=c(0, 8),
-       xlab="MAP (mm)", ylab=NA,
-       xaxt="n", yaxt="n",
+       xlab=NA, ylab=NA, xaxt="n", yaxt="n",
        cex.lab=1.3, col=Cols, add=T)
 
-axis(1, xlim=c(0, 3000), pos=0, lwd=2)
+axis(1, xlim=c(0, 3000), pos=0, lwd=2, labels=FALSE)
 axis(2, xlim=c(0, 8), pos=0, lwd=2)
-mtext(expression(italic(bar(E))~"(mm per day)"), side=2, line=1.7, cex=1.3)
-legend("topleft", c("0.025", "0.05", "0.1"), lty=c(1, 1, 1), col=Cols, title=expression(italic(k)))
+mtext(expression(italic(bar(E))~"(mm per day)"), side=2, line=1.9, cex=1.3)
+text(3000*0.03, 8*0.96, "a", cex=1.5)
 
 # average E/MAP
-windows(8, 6)
-par(mgp=c(2.2, 1, 0), xaxs="i", yaxs="i", lwd=2, mar=c(3.5, 3.5, 1, 1.5), mfrow=c(1,1))
-
 plot(MAP, E/MAP, panel.first={
   addpoly(p$x, p$lwr/p$x, p$upr/p$x)
   lines(p$x, p$pred/p$x)
@@ -56,11 +53,13 @@ xlab=NA, ylab=NA, xaxt="n", yaxt="n")
 plotBy(data$averE*500*365/data$MAP ~ data$MAP | k, data=data,
        type='l', legend=FALSE, legendwhere="topleft",
        xlim=c(0, 3000), ylim=c(0, 1),
-       xlab="MAP (mm)", ylab=NA,
-       xaxt="n", yaxt="n",
+       xlab=NA, ylab=NA, xaxt="n", yaxt="n",
        cex.lab=1.3, col=Cols, add=T)
 
 axis(1, xlim=c(0, 3000), pos=0, lwd=2)
 axis(2, xlim=c(0, 1), pos=0, lwd=2)
-mtext(expression(italic(bar(E))/MAP), side=2, line=1.7, cex=1.3)
-legend("bottomleft", c("0.025", "0.05", "0.1"), lty=c(1, 1, 1), col=Cols, title=expression(italic(k)))
+mtext("MAP (mm)", side=1, line=2.2, cex=1.3)
+mtext(expression(italic(bar(E))/MAP), side=2, line=1.9, cex=1.3)
+legend("bottomleft", expression(italic(k==0.025), italic(k==0.05), italic(k==0.1), Zhang~italic(et~al.)~2001),
+       col = c("red","darkgreen","blue", "black"), lty=c(1, 1, 1, 1))
+text(3000*0.03, 0.96, "b", cex=1.5)
