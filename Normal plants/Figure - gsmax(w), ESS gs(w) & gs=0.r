@@ -17,10 +17,11 @@ curve(gsmaxf1, 0, 1, xlim=c(0, 1), ylim=c(0, 0.5), cex.lab=1.3,
       xlab=expression(italic(w)),
       ylab=expression(italic(g[s])~(mol~m^-2~s^-1)), col="darkgreen")
 
+abline(h=0, col="red")
+
 curve(ESSf1, wL, 1, add=T, col="blue")
 segments(wL, 0, wL, ESSf1(wL), col="blue", lty=2)
-
-abline(h=0, col="red")
+segments(0, 0, wL, 0, col="blue")
 
 legend("topleft", title=expression(italic(g[s](w)*"=")), expression(italic(g[smax]), "0", ESS~italic(g[s])),
        col = c("darkgreen","red", "blue"), lty=c(1, 1, 1), lwd=c(2, 2, 2))
