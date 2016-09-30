@@ -7,7 +7,7 @@ source("Normal plants/Bootstrap functions.R")
 
 # Data
 # Model
-data <- read.csv("Normal plants/Derived variables.csv")
+data <- read.csv("Normal plants/test new PDF/test.csv")
 # TNPP
 dataTNPP <- read.csv("Normal plants/NPP.csv")
 colnames(dataTNPP) <- c("MAP", "TNPP")
@@ -86,4 +86,4 @@ legend("bottomright", expression(italic(k==0.025), italic(k==0.05), italic(k==0.
 text(3000*0.05, 15*0.95, "b", cex=1.5)
 box()
 
-dev.copy2pdf(file = "Normal plants/Figures/Figure 5.pdf")
+dev.copy2pdf(file = "Normal plants/test new PDF/test.pdf")

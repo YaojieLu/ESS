@@ -53,7 +53,7 @@ mtext(expression(italic(g[s])~(mol~m^-2~s^-1)), side=1, line=2.6, cex=1.3)
 mtext(expression(italic(B)~(mu*mol~m^-2~s^-1)), side=2, line=1.8, cex=1.3)
 legend("bottomright", expression(italic(g[smax]), italic(g[s]==0), ESS~italic(g[s])),
        col = c("orange","red", "blue"), lty=c(1, 1, 1), lwd=c(2, 2, 2))
-text(-0.04*0.5+0.5*1.08*0.95, -25*0.04-10+25*1.08*0.95, "a", cex=1.5)
+text(0.303, 15, "a", cex=1.5)
 box()
 
 # ESS gs and gsmax
@@ -72,7 +72,7 @@ axis(2, ylim=c(0, 0.3), pos=0, lwd=2, at=c(0, 0.1, 0.2, 0.3))
 mtext(expression(italic(w)), side=1, line=1.9, cex=1.3)
 mtext(expression(italic(g[s])~(mol~m^-2~s^-1)), side=2, line=1.8, cex=1.3)
 text(0.11, 0.25, expression(italic(w==w[L])), cex=1.3)
-text(0.95, -0.04*0.5+0.5*1.08*0.95, "b", cex=1.5)
+text(0.9722, 0.3, "b", cex=1.5)
 box()
 
 dev.copy2pdf(file = "Normal plants//Figures/Figure 3.pdf")

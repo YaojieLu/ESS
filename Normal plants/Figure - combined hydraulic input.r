@@ -61,7 +61,7 @@ curve(gspxminf, pxminf(0.01), pxminf(1), lwd=1, add=T)
 
 axis(2, ylim=c(0, 0.3), pos=-10, lwd=2, at=c(0, 0.1, 0.2, 0.3), cex.lab=1)
 text(-2.2, 0.13, expression(italic(g[smax])), cex=1.3)
-text(-0.5, 0.5*0.95, "c", cex=1.5)
+text(-0.5, 0.3*0.95, "c", cex=1.5)
 legend("topleft", title=expression(italic(w)), as.character(w), col=Cols, lty=c(1, 1, 1))
 box()
 
@@ -103,7 +103,7 @@ curve(PLCgsmaxf, gsmaxf(0.1), gsmaxf(1), lwd=1, add=T)
 
 axis(1, xlim=c(0, 0.3), pos=0, lwd=2, at=c(0, 0.1, 0.2, 0.3), cex.lab=1)
 text(0.16, 39, expression(italic(g[smax])), cex=1.3)
-text(0.5*0.95, 95, "d", cex=1.5)
+text(0.3*0.95, 95, "d", cex=1.5)
 box()
 
 dev.copy2pdf(file = "Normal plants//Figures/Figure 1.pdf")
