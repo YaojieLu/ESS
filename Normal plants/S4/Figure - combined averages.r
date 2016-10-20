@@ -34,9 +34,9 @@ nls1 <- nls(E ~ MAPE*((1+w*E0/MAPE)/(1+w*E0/MAPE+MAPE/E0)), start=list(w=3.822, 
 pE <- predict_nls(nls1, from=min(MAPE), to=max(MAPE), interval="confidence")
 
 # Figure
-Cols <- c("red","darkgreen","blue")
-windows(16, 6)
-par(mgp=c(2.2, 1, 0), xaxs="i", yaxs="i", lwd=2, oma=c(0, 0, 0, 2.5), mar=c(3.5, 3.5, 1, 1), mfrow=c(1, 2))
+#Cols <- c("red","darkgreen","blue")
+#windows(16, 6)
+#par(mgp=c(2.2, 1, 0), xaxs="i", yaxs="i", lwd=2, oma=c(0, 0, 0, 2.5), mar=c(3.5, 3.5, 1, 1), mfrow=c(1, 2))
 # average E
 plot(MAPE, E, panel.first={
   addpoly(pE$x, pE$lwr, pE$upr)
@@ -54,9 +54,9 @@ plotBy(data$averE*500*365 ~ data$MAP | k, data=data,
 abline(a=0, b=1, lwd=1, lty=2)
 
 mtext(expression(italic(bar(E))~"(mm per year)"), side=2, line=1.9, cex=1.3)
-legend("bottomright", expression(italic(k==0.025), italic(k==0.05), italic(k==0.1), Zhang~italic(et~al.)~2001),
-       col = c("red","darkgreen","blue", "black"), lty=c(1, 1, 1, 1))
-text(3000*0.05, 3000*0.95, "a", cex=1.5)
+legend("bottomright", expression(Zhang~italic(et~al.)~2001),
+       col = c("black"), lty=c(1))
+text(3000*0.05, 3000*0.95, "c", cex=1.5)
 box()
 
 # TNPP
@@ -67,7 +67,7 @@ plot(MAPTNPP, TNPP, panel.first={
   xlim=c(0, 3000), ylim=c(0, 1420))
 
 axis(4, ylim=c(0, 1200), pos=3000, lwd=2, at=c(0, 500, 1000))
-mtext(expression(TNPP~(gC~m^-2~yr^-1)),side=4,line=2.5, cex=1.3)
+mtext(expression(TNPP~(gC~m^-2~yr^-1)),side=4,line=2.9, cex=1.3)
 rect(0, 0, 100, 1420, col="white", border=NA)
 
 # average A
@@ -82,9 +82,9 @@ plotBy(data$averA ~ data$MAP | k, data=data,
 axis(1, xlim=c(0, 3000), pos=0, lwd=2)
 axis(2, xlim=c(0, 15), pos=0, lwd=2, at=c(0, 5, 10, 15))
 mtext(expression(bar(italic(A[N]))~(mu*mol~m^-2~s^-1)), side=2, line=1.8, cex=1.3)#*" or "*bar(italic(m))
-legend("bottomright", expression(italic(k==0.025), italic(k==0.05), italic(k==0.1), Del~Grosso~italic(et~al.)~2008),
-       col = c("red","darkgreen","blue", "black"), lty=c(1, 1, 1, 1), lwd=c(2, 2, 2, 2))
-text(3000*0.05, 15*0.95, "b", cex=1.5)
+legend("bottomright", expression(Del~Grosso~italic(et~al.)~2008),
+       col = c("black"), lty=c(1))
+text(3000*0.05, 15*0.95, "d", cex=1.5)
 box()
 
-dev.copy2pdf(file = "Normal plants//Figures/Figure 12.pdf")
+dev.copy2pdf(file = "Normal plants//Figures/Figure 6.pdf")
